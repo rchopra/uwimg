@@ -32,10 +32,9 @@ void set_pixel(image im, int x, int y, int c, float v) {
   im.data[index] = v;
 }
 
-image copy_image(image im)
-{
+image copy_image(image im) {
     image copy = make_image(im.w, im.h, im.c);
-    // TODO Fill this in
+    memcpy(copy.data, im.data, sizeof(float) * (im.w * im.h * im.c));
     return copy;
 }
 
