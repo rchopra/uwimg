@@ -41,8 +41,16 @@ image copy_image(image im) {
 image rgb_to_grayscale(image im)
 {
     assert(im.c == 3);
+    float r, g, b;
     image gray = make_image(im.w, im.h, 1);
-    // TODO Fill this in
+    for (int i = 0; i < im.w; i++) {
+      for (int j = 0; j < im.h; j++) {
+        r = get_pixel(im, i, j, 0);
+        g = get_pixel(im, i, j, 1);
+        b = get_pixel(im, i, j, 2);
+        set_pixel(gray, i, j, 0, 0.299 * r + 0.587 * g + 0.114 * b);
+      }
+    }
     return gray;
 }
 
