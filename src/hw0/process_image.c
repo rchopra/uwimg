@@ -4,15 +4,32 @@
 #include <math.h>
 #include "image.h"
 
-float get_pixel(image im, int x, int y, int c)
-{
-    // TODO Fill this in
-    return 0;
+float get_pixel(image im, int x, int y, int c) {
+  if (x < 0) {
+    x = 0;
+  } else if (x >= im.w) {
+    x = im.w - 1;
+  }
+
+  if (y < 0) {
+    y = 0;
+  } else if (y >= im.h) {
+    y = im.h - 1;
+  }
+
+  int pixels = im.w * im.h;
+  int index = (c * pixels) + (y * im.w) + x;
+  return im.data[index];
 }
 
-void set_pixel(image im, int x, int y, int c, float v)
-{
-    // TODO Fill this in
+void set_pixel(image im, int x, int y, int c, float v) {
+  if (x < 0 || x >= im.w || y < 0 || y >= im.h) {
+    return;
+  }
+
+  int pixels = im.w * im.h;
+  int index = (c * pixels) + (y * im.w) + x;
+  im.data[index] = v;
 }
 
 image copy_image(image im)
