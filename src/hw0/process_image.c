@@ -63,9 +63,17 @@ void shift_image(image im, int c, float v) {
   }
 }
 
-void clamp_image(image im)
-{
-    // TODO Fill this in
+void clamp_image(image im) {
+  float originalVal, clampedVal;
+  for (int i = 0; i < im.w; i++) {
+    for (int j = 0; j < im.h; j++) {
+      for (int k = 0; k < im.c; k++) {
+        originalVal = get_pixel(im, i, j, k);
+        clampedVal = originalVal > 1 ? 1 : (originalVal < 0 ? 0 : originalVal);
+        set_pixel(im, i, j, k, clampedVal);
+      }
+    }
+  }
 }
 
 
