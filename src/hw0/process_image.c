@@ -88,9 +88,46 @@ float three_way_min(float a, float b, float c)
     return (a < b) ? ( (a < c) ? a : c) : ( (b < c) ? b : c) ;
 }
 
-void rgb_to_hsv(image im)
-{
-    // TODO Fill this in
+void rgb_to_hsv(image im) {
+  float red, green, blue;
+  float hue, saturation, value;
+  float minValue, C, Hprime;
+
+  for (int i = 0; i < im.w; i++) {
+    for (int j = 0; j < im.h; j++) {
+      red   = get_pixel(im, i, j, 0);
+      green = get_pixel(im, i, j, 1);
+      blue  = get_pixel(im, i, j, 2);
+
+      value    = three_way_max(red, green, blue);
+      minValue = three_way_min(red, green, blue);
+      C = value - minValue;
+
+      saturation = 0;
+      if (value != 0) {
+        saturation = C / value;
+      }
+
+      if (C == 0) {
+        Hprime = 0;
+      } else if (value == red) {
+        Hprime = (green - blue) / C;
+      } else if (value == green) {
+        Hprime = (blue - red) / C + 2;
+      } else { // value == blue
+        Hprime = (red - green) / C + 4;
+      }
+
+      hue = Hprime / 6;
+      if (Hprime < 0) {
+        hue += 1;
+      }
+
+      set_pixel(im, i, j, 0, hue);
+      set_pixel(im, i, j, 1, saturation);
+      set_pixel(im, i, j, 2, value);
+    }
+  }
 }
 
 void hsv_to_rgb(image im)
