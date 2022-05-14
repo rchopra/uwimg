@@ -130,7 +130,51 @@ void rgb_to_hsv(image im) {
   }
 }
 
-void hsv_to_rgb(image im)
-{
-    // TODO Fill this in
+void hsv_to_rgb(image im) {
+  float hue, saturation, value;
+  float red, green, blue;
+  float minValue, chroma, Hprime, x;
+
+  for (int i = 0; i < im.w; i++) {
+    for (int j = 0; j < im.h; j++) {
+      hue        = get_pixel(im, i, j, 0);
+      saturation = get_pixel(im, i, j, 1);
+      value      = get_pixel(im, i, j, 2);
+
+      chroma = saturation * value;
+      minValue = value - chroma;
+      Hprime = hue * 6;
+      x = chroma * (1 - fabs(fmod(Hprime, 2) - 1));
+
+      if (Hprime < 1) {
+        red = chroma;
+        green = x;
+        blue = 0;
+      } else if (Hprime < 2) {
+        red = x;
+        green = chroma;
+        blue = 0;
+      } else if (Hprime < 3) {
+        red = 0;
+        green = chroma;
+        blue = x;
+      } else if (Hprime < 4) {
+        red = 0;
+        green = x;
+        blue = chroma;
+      } else if (Hprime < 5) {
+        red = x;
+        green = 0;
+        blue = chroma;
+      } else { // Hprime < 6
+        red = chroma;
+        green = 0;
+        blue = x;
+      }
+
+      set_pixel(im, i, j, 0, red + minValue);
+      set_pixel(im, i, j, 1, green + minValue);
+      set_pixel(im, i, j, 2, blue + minValue);
+    }
+  }
 }
