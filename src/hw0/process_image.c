@@ -54,9 +54,13 @@ image rgb_to_grayscale(image im)
     return gray;
 }
 
-void shift_image(image im, int c, float v)
-{
-    // TODO Fill this in
+void shift_image(image im, int c, float v) {
+  for (int i = 0; i < im.w; i++) {
+    for (int j = 0; j < im.h; j++) {
+      float originalVal = get_pixel(im, i, j, c);
+      set_pixel(im, i, j, c, originalVal + v);
+    }
+  }
 }
 
 void clamp_image(image im)
