@@ -1,10 +1,8 @@
 #include <math.h>
 #include "image.h"
 
-float nn_interpolate(image im, float x, float y, int c)
-{
-    // TODO Fill in
-    return 0;
+float nn_interpolate(image im, float x, float y, int c) {
+    return get_pixel(im, round(x), round(y), c);
 }
 
 image nn_resize(image im, int w, int h)
