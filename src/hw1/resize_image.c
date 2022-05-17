@@ -23,10 +23,27 @@ image nn_resize(image im, int w, int h) {
     return img;
 }
 
-float bilinear_interpolate(image im, float x, float y, int c)
-{
-    // TODO
-    return 0;
+float bilinear_interpolate(image im, float x, float y, int c) {
+    float x_floor = floor(x);
+    float y_floor = floor(y);
+    float x_ceil = ceil(x);
+    float y_ceil = ceil(y);
+
+    float d1 = x - x_floor;
+    float d2 = x_ceil - x;
+    float d3 = y - y_floor;
+    float d4 = y_ceil - y;
+
+    float v1 = get_pixel(im, x_floor, y_floor, c);
+    float v2 = get_pixel(im, x_ceil, y_floor, c);
+    float v3 = get_pixel(im, x_floor, y_ceil, c);
+    float v4 = get_pixel(im, x_ceil, y_ceil, c);
+
+    float q1 = v1 * d2 + v2 * d1;
+    float q2 = v3 * d2 + v4 * d1;
+    float q = q1 * d4 + q2 * d3;
+
+    return q;
 }
 
 image bilinear_resize(image im, int w, int h)
