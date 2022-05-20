@@ -145,8 +145,20 @@ image make_emboss_filter() {
 // Yes. For all filters we need to clamp values as they may have overflowed.
 
 image make_gaussian_filter(float sigma) {
-  // TODO
-  return make_image(1, 1, 1);
+  int size = ceil(6 * sigma);
+  size = size % 2 == 0 ? size + 1 : size;
+  float normalizer = 1 / (TWOPI * sigma * sigma);
+
+  image im = make_image(size, size, 1);
+  for (int i = -size / 2; i <= size / 2; i++) {
+    for (int j = -size / 2; j <= size / 2; j++) {
+      float val = normalizer * exp(-(i * i + j * j) / (2 * sigma * sigma));
+      set_pixel(im, i + size / 2, j + size / 2, 0, val);
+    }
+  }
+
+  l1_normalize(im);
+  return im;
 }
 
 image add_image(image a, image b) {
