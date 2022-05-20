@@ -34,3 +34,14 @@ reconstruct = lfreq + hfreq
 save_image(lfreq, "low-frequency")
 save_image(hfreq, "high-frequency")
 save_image(reconstruct, "reconstruct")
+
+res = sobel_image(im)
+mag = res[0]
+theta = res[1]
+feature_normalize(mag)
+feature_normalize(theta)
+save_image(mag, "magnitude")
+save_image(theta, "theta")
+
+colorized = colorize_sobel(im)
+save_image(colorized, "colorized-sobel")

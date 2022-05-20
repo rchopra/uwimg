@@ -196,25 +196,111 @@ image sub_image(image a, image b) {
 }
 
 image make_gx_filter() {
-  // TODO
-  return make_image(1, 1, 1);
+  image im = make_image(3, 3, 1);
+  set_pixel(im, 0, 0, 0, -1);
+  set_pixel(im, 1, 0, 0, 0);
+  set_pixel(im, 2, 0, 0, 1);
+  set_pixel(im, 0, 1, 0, -2);
+  set_pixel(im, 1, 1, 0, 0);
+  set_pixel(im, 2, 1, 0, 2);
+  set_pixel(im, 0, 2, 0, -1);
+  set_pixel(im, 1, 2, 0, 0);
+  set_pixel(im, 2, 2, 0, 1);
+  return im;
 }
 
 image make_gy_filter() {
-  // TODO
-  return make_image(1, 1, 1);
+  image im = make_image(3, 3, 1);
+  set_pixel(im, 0, 0, 0, -1);
+  set_pixel(im, 1, 0, 0, -2);
+  set_pixel(im, 2, 0, 0, -1);
+  set_pixel(im, 0, 1, 0, 0);
+  set_pixel(im, 1, 1, 0, 0);
+  set_pixel(im, 2, 1, 0, 0);
+  set_pixel(im, 0, 2, 0, 1);
+  set_pixel(im, 1, 2, 0, 2);
+  set_pixel(im, 2, 2, 0, 1);
+  return im;
 }
 
 void feature_normalize(image im) {
-  // TODO
+  float min = get_pixel(im, 0, 0, 0);
+  float max = get_pixel(im, 0, 0, 0);
+
+  for (int i = 0; i < im.w; i++) {
+    for (int j = 0; j < im.h; j++) {
+      for (int k = 0; k < im.c; k++) {
+        float val = get_pixel(im, i, j, k);
+        if (val < min) {
+          min = val;
+        } else if (val > max) {
+          max = val;
+        }
+      }
+    }
+  }
+
+  float range = max - min;
+  if (range != 0) {
+    range = 1 / range;
+  }
+
+  for (int i = 0; i < im.w; i++) {
+    for (int j = 0; j < im.h; j++) {
+      for (int k = 0; k < im.c; k++) {
+        float val = get_pixel(im, i, j, k);
+        set_pixel(im, i, j, k, range * (val - min));
+      }
+    }
+  }
 }
 
 image *sobel_image(image im) {
-  // TODO
-  return calloc(2, sizeof(image));
+  image gx = convolve_image(im, make_gx_filter(), 0);
+  image gy = convolve_image(im, make_gy_filter(), 0);
+
+  image mag = make_image(im.w, im.h, 1);
+  for (int i = 0; i < im.w; i++) {
+    for (int j = 0; j < im.h; j++) {
+      float x = get_pixel(gx, i, j, 0);
+      float y = get_pixel(gy, i, j, 0);
+      set_pixel(mag, i, j, 0, sqrt(x * x + y * y));
+    }
+  }
+
+  image theta = make_image(im.w, im.h, 1);
+  for (int i = 0; i < im.w; i++) {
+    for (int j = 0; j < im.h; j++) {
+      float x = get_pixel(gx, i, j, 0);
+      float y = get_pixel(gy, i, j, 0);
+      set_pixel(theta, i, j, 0, atan2(y, x));
+    }
+  }
+
+  image *images = calloc(2, sizeof(image));
+  images[0] = mag;
+  images[1] = theta;
+  return images;
 }
 
 image colorize_sobel(image im) {
-  // TODO
-  return make_image(1, 1, 1);
+  image *res = sobel_image(convolve_image(im, make_gaussian_filter(2), 1));
+  image mag = res[0];
+  image theta = res[1];
+  feature_normalize(mag);
+  feature_normalize(theta);
+
+  image colorized = make_image(im.w, im.h, 3);
+  for (int i = 0; i < im.w; i++) {
+    for (int j = 0; j < im.h; j++) {
+      float h = get_pixel(theta, i, j, 0);
+      float sv = get_pixel(mag, i, j, 0);
+      set_pixel(colorized, i, j, 0, h);
+      set_pixel(colorized, i, j, 1, sv);
+      set_pixel(colorized, i, j, 2, sv);
+    }
+  }
+
+  hsv_to_rgb(colorized);
+  return colorized;
 }
