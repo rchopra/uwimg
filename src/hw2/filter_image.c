@@ -162,13 +162,37 @@ image make_gaussian_filter(float sigma) {
 }
 
 image add_image(image a, image b) {
-  // TODO
-  return make_image(1, 1, 1);
+  assert(a.w == b.w && a.h == b.h && a.c == b.c);
+
+  image im = make_image(a.w, a.h, a.c);
+  for (int i = 0; i < im.w; i++) {
+    for (int j = 0; j < im.h; j++) {
+      for (int k = 0; k < im.c; k++) {
+        float av = get_pixel(a, i, j, k);
+        float bv = get_pixel(b, i, j, k);
+        set_pixel(im, i, j, k, av + bv);
+      }
+    }
+  }
+
+  return im;
 }
 
 image sub_image(image a, image b) {
-  // TODO
-  return make_image(1, 1, 1);
+  assert(a.w == b.w && a.h == b.h && a.c == b.c);
+
+  image im = make_image(a.w, a.h, a.c);
+  for (int i = 0; i < im.w; i++) {
+    for (int j = 0; j < im.h; j++) {
+      for (int k = 0; k < im.c; k++) {
+        float av = get_pixel(a, i, j, k);
+        float bv = get_pixel(b, i, j, k);
+        set_pixel(im, i, j, k, av - bv);
+      }
+    }
+  }
+
+  return im;
 }
 
 image make_gx_filter() {
