@@ -146,8 +146,21 @@ image structure_matrix(image im, float sigma) {
 // returns: a response map of cornerness calculations.
 image cornerness_response(image S) {
   image R = make_image(S.w, S.h, 1);
-  // TODO: fill in R, "cornerness" for each pixel using the structure matrix.
   // We'll use formulation det(S) - alpha * trace(S)^2, alpha = .06.
+  float alpha = 0.06;
+  float sx, sy, sxy, det, trace;
+
+  for (int i = 0; i < R.w; i++) {
+    for (int j = 0; j < R.h; j++) {
+      sx = get_pixel(S, i, j, 0);
+      sy = get_pixel(S, i, j, 1);
+      sxy = get_pixel(S, i, j, 2);
+      det = sx * sy - sxy * sxy;
+      trace = sx + sy;
+      set_pixel(R, i, j, 0, det - alpha * trace * trace);
+    }
+  }
+
   return R;
 }
 
