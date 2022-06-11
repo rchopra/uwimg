@@ -166,11 +166,11 @@ image cornerness_response(image S) {
   return R;
 }
 
-void suppress_pixel(image r, int w, int x, int y) {
-  float currPixel = get_pixel(r, x, y, 0);
+void suppress_pixel(image im, image r, int w, int x, int y) {
+  float currPixel = get_pixel(im, x, y, 0);
   for (int i = -w; i <= w; i++) {
     for (int j = -w; j <= w; j++) {
-      if (currPixel < get_pixel(r, x + i, y + j, 0)) {
+      if (currPixel < get_pixel(im, x + i, y + j, 0)) {
         set_pixel(r, x, y, 0, SUPPRESSED_VALUE);
         return;
       }
@@ -186,7 +186,7 @@ image nms_image(image im, int w) {
   image r = copy_image(im);
   for (int i = 0; i < r.w; i++) {
     for (int j = 0; j < r.h; j++) {
-      suppress_pixel(r, w, i, j);
+      suppress_pixel(im, r, w, i, j);
     }
   }
 
