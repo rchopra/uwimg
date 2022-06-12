@@ -138,24 +138,47 @@ match *match_descriptors(descriptor *a, int an, descriptor *b, int bn,
   *mn = an;
   match *m = calloc(an, sizeof(match));
   for (j = 0; j < an; ++j) {
-    // TODO: for every descriptor in a, find best match in b.
+    // For every descriptor in a, find best match in b.
     // record ai as the index in *a and bi as the index in *b.
-    int bind = 0; // <- find the best match
-    m[j].ai = j;
-    m[j].bi = bind; // <- should be index in b.
-    m[j].p = a[j].p;
-    m[j].q = b[bind].p;
-    m[j].distance = 0; // <- should be the smallest L1 distance!
+    float min_dist = -1;
+    for (int k = 0; k < bn; k++) {
+      float dist = l1_distance(a[j].data, b[k].data, a[j].n);
+      if (min_dist == -1 || dist <= min_dist) {
+        int bind = k; // <- find the best match
+        m[j].ai = j;
+        m[j].bi = bind; // <- should be index in b.
+        m[j].p = a[j].p;
+        m[j].q = b[bind].p;
+        m[j].distance = dist; // <- should be the smallest L1 distance!
+        min_dist = dist;
+      }
+    }
   }
 
   int count = 0;
   int *seen = calloc(bn, sizeof(int));
-  // TODO: we want matches to be injective (one-to-one).
+  // We want matches to be injective (one-to-one).
   // Sort matches based on distance using match_compare and qsort.
   // Then throw out matches to the same element in b. Use seen to keep track.
   // Each point should only be a part of one match.
   // Some points will not be in a match.
   // In practice just bring good matches to front of list, set *mn.
+  qsort(m, an, sizeof(match), match_compare);
+  for (i = 0; i < an; i++) {
+    int found = 0;
+    for (int k = 0; k < count; k++) {
+      if (m[i].bi == seen[k]) {
+        found = 1;
+        break;
+      }
+    }
+
+    if (!found) {
+      m[count] = m[i];
+      seen[count] = m[i].bi;
+      count++;
+    }
+  }
   *mn = count;
   free(seen);
   return m;
