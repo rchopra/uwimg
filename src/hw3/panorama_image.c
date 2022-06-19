@@ -229,7 +229,7 @@ int model_inliers(matrix H, match *m, int n, float thresh) {
   // Count number of matches that are inliers
   // i.e. distance(H*p, q) < thresh
   // Also, sort the matches m so the inliers are the first 'count' elements.
-  for (int i = 0; i < n; i++) {
+  for (i = 0; i < n; i++) {
     point q_prime = project_point(H, m[i].p);
     float dist = point_distance(m[i].q, q_prime);
     if (dist < thresh) {
@@ -323,16 +323,19 @@ matrix RANSAC(match *m, int n, float thresh, int k, int cutoff) {
   int e;
   int best = 0;
   matrix Hb = make_translation_homography(256, 0);
-  // TODO: fill in RANSAC algorithm.
-  // for k iterations:
-  //     shuffle the matches
-  //     compute a homography with a few matches (how many??)
-  //     if new homography is better than old (how can you tell?):
-  //         compute updated homography using all inliers
-  //         remember it and how good it is
-  //         if it's better than the cutoff:
-  //             return it immediately
-  // if we get to the end return the best homography
+
+  for (; k > 0; k--) {
+    randomize_matches(m, n);
+    matrix Hb_candidate = compute_homography(m, 8);
+    e = model_inliers(Hb_candidate, m, n, thresh);
+    if (e > best) {
+      Hb = compute_homography(m, e);
+      best = e;
+      if (best > cutoff) {
+        break;
+      }
+    }
+  }
   return Hb;
 }
 
