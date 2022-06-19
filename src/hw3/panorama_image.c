@@ -367,10 +367,10 @@ image combine_images(image a, image b, matrix H) {
 
   // Can disable this if you are making very big panoramas.
   // Usually this means there was an error in calculating H.
-  if (w > 7000 || h > 7000) {
-    fprintf(stderr, "output too big, stopping\n");
-    return copy_image(a);
-  }
+  // if (w > 7000 || h > 7000) {
+  //   fprintf(stderr, "output too big, stopping\n");
+  //   return copy_image(a);
+  // }
 
   int i, j, k;
   image c = make_image(w, h, a.c);
@@ -379,16 +379,22 @@ image combine_images(image a, image b, matrix H) {
   for (k = 0; k < a.c; ++k) {
     for (j = 0; j < a.h; ++j) {
       for (i = 0; i < a.w; ++i) {
-        // TODO: fill in.
+        set_pixel(c, i - dx, j - dy, k, get_pixel(a, i, j, k));
       }
     }
   }
 
-  // TODO: Paste in image b as well.
-  // You should loop over some points in the new image (which? all?)
-  // and see if their projection from a coordinates to b coordinates falls
-  // inside of the bounds of image b. If so, use bilinear interpolation to
-  // estimate the value of b at that projection, then fill in image c.
+  // Paste in image b as well.
+  for (k = 0; k < c.c; ++k) {
+    for (j = 0; j < c.h; ++j) {
+      for (i = 0; i < c.w; ++i) {
+        point bp = project_point(H, make_point(i + dx, j + dy));
+        if (bp.x >= 0 && bp.x < b.w && bp.y >= 0 && bp.y < b.h) {
+          set_pixel(c, i, j, k, bilinear_interpolate(b, bp.x, bp.y, k));
+        }
+      }
+    }
+  }
 
   return c;
 }
@@ -418,7 +424,7 @@ image panorama_image(image a, image b, float sigma, float thresh, int nms,
   // Run RANSAC to find the homography
   matrix H = RANSAC(m, mn, inlier_thresh, iters, cutoff);
 
-  if (1) {
+  if (0) {
     // Mark corners and matches between images
     mark_corners(a, ad, an);
     mark_corners(b, bd, bn);
